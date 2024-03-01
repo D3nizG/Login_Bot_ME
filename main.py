@@ -49,7 +49,7 @@ def getThatRoom():
     
     # Load webpage
     driver.get(secretSquirrelSauce.abbeyRoad)
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(5)
     evadeCyberPolice()
 
     # Enter username
@@ -87,7 +87,7 @@ def getThatRoom():
     Whatever the time is -8
     eg. 9:00 = [1], 21:00 = [13]
     """
-    time_slot = driver.find_element(by=By.XPATH, value='//*[@id="day_main"]/tbody/tr[11]/td')
+    time_slot = driver.find_element(by=By.XPATH, value='//*[@id="day_main"]/tbody/tr[12]/td')
     time_slot.click()
     evadeCyberPolice()
 
@@ -96,6 +96,13 @@ def getThatRoom():
     select = Select(bookType)
     select.select_by_visible_text('24hr')
 
+
+    # submit booking request
+    """
+    nxt_btn = driver.find_element(by=By.CLASS_NAME, value='default_action')
+    nxt_btn.click()
+    evadeCyberPolice()
+    """
 
     time.sleep(5)
 
