@@ -179,7 +179,7 @@ def getThatRoom(sessionTime, studio, bookingType):
         nxt_btn.click()
         evadeCyberPolice()
 
-    target_time = datetime.time(6, 25, 0)
+    target_time = datetime.time(6, 29, 0)
     wait_until(target_time)
     submitBooking()
 
