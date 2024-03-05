@@ -11,7 +11,7 @@ Procedure:
 
 IMPORTANT
 
-be able to change the time of booking available-->> asks for input for time
+Should be able to change the time of booking available-->> asks for input for time
 
 *Books 24 hours in advance to book for 24 hour bookings
 *MUST BE '24 HOUR BOOKING' option ***NOT 'ADVANCE' booking option
@@ -28,43 +28,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
-# from selenium.common.exceptions import TimeoutException
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-
-def evadeCyberPolice():
-    int = random.randint(1,4)
-    time.sleep(int)
-
-# def waitToLoad(driver, byType, identifier):
-#     try:
-#         WebDriverWait(driver, 10).until(EC.presence_of_element_located((byType, identifier)))
-#     except:
-#         TimeoutException
 
 """
 Code starts here
 """ 
-    
-"""
-code a exit button asking input
-print message what would you like to do and give otions 
-ask for an input  :
-check input, use logic to determine which option was selected
-    using selected option print next sequence and ask input
-    next sequence may be 
 
-    while somevalue is true run -> quit button will turn that value to 
-        false or will call quit
-    
-    print default studio = "custom 75" 
-    print default sess_length = 2 hours
-    1. input sess_time = ?
-    
-    2. length of session
-    
-    location, or to exit
-"""
+def evadeCyberPolice():
+    int = random.randint(1,4)
+    time.sleep(int)
 
 def menu():
     b = input('To book a session enter 1.\nTo exit application enter 2.\n\n')
@@ -91,17 +62,22 @@ def setup():
     print ('Default studio is "Custom 75"')
     print ('Default session length is 2 hours')
     print ('Default booking type is 24hr\n\n')
+
     selection = input("To start proceed with booking enter '1'.\nTo change defaut studio enter '2'.\nTo change session length enter '3'.\nTo change boking type enter '4'.\n\n")
     if selection == "1":
-        sess_time = input("Please enter the session time in the format 'xxxx'\nFor example 10 pm will be '2200'\n")
-        getThatRoom(sess_time)
+        booking_amt = int(input('How many bookings will you want to make?'))
+        sess_times = []
+        for i in range(booking_amt):
+            sess_times += [int(input(f"Please enter the session time in the format 'xxxx' for booking #{i}\nFor example 10 pm will be '2200'\n"))]
+            # print(sess_times)
+        for i in range(len(sess_times)):
+            getThatRoom(sess_times[i])
     elif selection == "2":
         pass
 
     else:
         pass
 
-    
 
 def getThatRoom(sessionTime):
     
