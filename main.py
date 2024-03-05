@@ -20,6 +20,7 @@ be able to change the time of booking available-->> asks for input for time
 """
 
 import secretSquirrelSauce
+import sys
 import schedule
 import time
 import random
@@ -41,8 +42,68 @@ def evadeCyberPolice():
 #     except:
 #         TimeoutException
 
+"""
+Code starts here
+""" 
+    
+"""
+code a exit button asking input
+print message what would you like to do and give otions 
+ask for an input  :
+check input, use logic to determine which option was selected
+    using selected option print next sequence and ask input
+    next sequence may be 
 
-def getThatRoom():
+    while somevalue is true run -> quit button will turn that value to 
+        false or will call quit
+    
+    print default studio = "custom 75" 
+    print default sess_length = 2 hours
+    1. input sess_time = ?
+    
+    2. length of session
+    
+    location, or to exit
+"""
+
+def menu():
+    b = input('To book a session enter 1.\nTo exit application enter 2.\n\n')
+
+    if b == "2":
+        sys.exit
+
+    elif b == "1":
+        setup()
+
+    else:
+        print("That is not a valid selection. Please try again.\n")
+        menu()
+
+
+# booking_amt = input('How many bookings will you want to make?')
+# print("The default studio is Custom 75.\nThe default studio session time is 2 hours.") 
+# sess_time = 
+
+
+# schedule.every().day.at("21:00").do(getThatRoom)
+
+def setup():
+    print ('Default studio is "Custom 75"')
+    print ('Default session length is 2 hours')
+    print ('Default booking type is 24hr\n\n')
+    selection = input("To start proceed with booking enter '1'.\nTo change defaut studio enter '2'.\nTo change session length enter '3'.\nTo change boking type enter '4'.\n\n")
+    if selection == "1":
+        sess_time = input("Please enter the session time in the format 'xxxx'\nFor example 10 pm will be '2200'\n")
+        getThatRoom(sess_time)
+    elif selection == "2":
+        pass
+
+    else:
+        pass
+
+    
+
+def getThatRoom(sessionTime):
     
     # Start session
     driver = webdriver.Chrome()
@@ -87,7 +148,8 @@ def getThatRoom():
     Whatever the time is -8
     eg. 9:00 = [1], 21:00 = [13]
     """
-    time_slot = driver.find_element(by=By.XPATH, value='//*[@id="day_main"]/tbody/tr[12]/td')
+    timeIdentifier = (int(sessionTime)/100)-8
+    time_slot = driver.find_element(by=By.XPATH, value=f'//*[@id="day_main"]/tbody/tr[{timeIdentifier}]/td')
     time_slot.click()
     evadeCyberPolice()
 
@@ -108,6 +170,8 @@ def getThatRoom():
 
 
 # schedule.every().day.at("21:00").do(getThatRoom)
-    
-getThatRoom()
+
+menu()
+
+# getThatRoom()
 
