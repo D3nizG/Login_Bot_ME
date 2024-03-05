@@ -21,7 +21,7 @@ Should be able to change the time of booking available-->> asks for input for ti
 
 import secretSquirrelSauce
 import sys
-import schedule
+import datetime
 import time
 import random
 from selenium import webdriver
@@ -33,12 +33,31 @@ from selenium.webdriver.support.select import Select
 Code starts here
 """ 
 
+"""some functions that help with the functionality of the bot"""
+# Randomly halts code
 def evadeCyberPolice():
     int = random.randint(1,4)
     time.sleep(int)
 
+
+# function to pause execution until time has arrived
+def wait_until(target_time):
+    target_datetime = datetime.datetime.combine(datetime.datetime.today(), target_time)
+
+    time_difference = target_datetime - datetime.datetime.now()
+    
+    # Convert time difference to seconds
+    total_seconds = time_difference.total_seconds()
+
+    # Check if the target time is in the future
+    if total_seconds > 0:
+        time.sleep(total_seconds)
+    else:
+        print("Target time is already in the past.")
+
+# menu at the start of application
 def menu():
-    b = input('To book a session enter 1.\nTo exit application enter 2.\n\n')
+    b = input('\nTo book a session enter 1.\nTo exit application enter 2.\n\n')
 
     if b == "2":
         sys.exit
@@ -51,35 +70,54 @@ def menu():
         menu()
 
 
-# booking_amt = input('How many bookings will you want to make?')
-# print("The default studio is Custom 75.\nThe default studio session time is 2 hours.") 
-# sess_time = 
+#  initialize values and accept additional inputs from user 
+def setup(studio = "Custom 75", bookingType = "24hr"):
 
-
-# schedule.every().day.at("21:00").do(getThatRoom)
-
-def setup():
-    print ('Default studio is "Custom 75"')
+    print ('\nDefault studio is ' + studio)
     print ('Default session length is 2 hours')
-    print ('Default booking type is 24hr\n\n')
+    print ('Default booking type is ' + bookingType + '\n\n')
 
-    selection = input("To start proceed with booking enter '1'.\nTo change defaut studio enter '2'.\nTo change session length enter '3'.\nTo change boking type enter '4'.\n\n")
+    selection = input("To start proceed with booking enter '1'.\nTo change default studio enter '2'.\
+                 \nTo change session length enter '3'.(Currently Unavailable)\nTo change booking type enter '4'.\n\n")
+    
+    # Option 1 proceed with booking process
     if selection == "1":
-        booking_amt = int(input('How many bookings will you want to make?'))
+        booking_amt = int(input('\nHow many bookings will you want to make?\n\n'))
         sess_times = []
+        
+        # collect session times for all bookings
         for i in range(booking_amt):
-            sess_times += [int(input(f"Please enter the session time in the format 'xxxx' for booking #{i}\nFor example 10 pm will be '2200'\n"))]
-            # print(sess_times)
+            sess_times += [int(input(f"\nPlease enter the session time in the format 'xxxx' for booking #{i+1}.\
+                                     \nFor example 10 pm will be '2200'\n"))]
+            
+        # run cript for each booking time available
         for i in range(len(sess_times)):
-            getThatRoom(sess_times[i])
+            getThatRoom(sess_times[i], studio, bookingType)
+
+    # Option 2 change studio
     elif selection == "2":
-        pass
+        print("\nStudio Selection options are Angel - Prod Suites, Angel Two, Angel Post, Custom 75, Tech Lab One, and Tech Lab Two")
+        studio = input("Please enter the name of the studio you would like to book.\n\n")
+        return setup(studio = studio, bookingType = bookingType)
+
+    # Option 3 change session length
+    elif selection == "3":
+        print("\nThat feature is still under development. Please choose another option.\n\n")
+        setup()
+
+    # Option 4 change booking type 
+    elif selection == "4":
+        print("\nBooking types are '24hr' and 'Advance'")
+        bookingType = input("Please enter the booking type you would like.\n\n")
+        return setup(studio = studio, bookingType = bookingType)
 
     else:
-        pass
+        print("\nThat is not a valid selection. Please try again.\n")
+        setup()
 
 
-def getThatRoom(sessionTime):
+#Initiate and run the selenium script
+def getThatRoom(sessionTime, studio, bookingType):
     
     # Start session
     driver = webdriver.Chrome()
@@ -109,7 +147,7 @@ def getThatRoom(sessionTime):
     studio_drpdwn.click()
     evadeCyberPolice()
     studio_slct = driver.find_element(by=By.CLASS_NAME, value='select2-search__field')
-    studio_slct.send_keys(secretSquirrelSauce.studio)
+    studio_slct.send_keys(studio)
     studio_slct.send_keys(Keys.ENTER)
     evadeCyberPolice()
 
@@ -121,33 +159,31 @@ def getThatRoom(sessionTime):
 
     # select time slot
     """
-    Whatever the time is -8
+    Calculatins for div value : Whatever the booking time is -8
     eg. 9:00 = [1], 21:00 = [13]
     """
     timeIdentifier = (int(sessionTime)/100)-8
-    time_slot = driver.find_element(by=By.XPATH, value=f'//*[@id="day_main"]/tbody/tr[{timeIdentifier}]/td')
+    time_slot = driver.find_element(by=By.XPATH,\
+                                    value=f'//*[@id="day_main"]/tbody/tr[{timeIdentifier}]/td')
     time_slot.click()
     evadeCyberPolice()
 
     # change booking type to 24h
     bookType = driver.find_element(by=By.ID, value="type")
     select = Select(bookType)
-    select.select_by_visible_text('24hr')
-
+    select.select_by_visible_text(bookingType)
 
     # submit booking request
-    """
-    nxt_btn = driver.find_element(by=By.CLASS_NAME, value='default_action')
-    nxt_btn.click()
-    evadeCyberPolice()
-    """
+    def submitBooking():
+        nxt_btn = driver.find_element(by=By.CLASS_NAME, value='default_action')
+        nxt_btn.click()
+        evadeCyberPolice()
 
-    time.sleep(5)
+    target_time = datetime.time(6, 3, 0)
+    wait_until(target_time)
+    submitBooking()
 
+    time.sleep(10)
 
-# schedule.every().day.at("21:00").do(getThatRoom)
-
+# the function that jumpstarts all the code
 menu()
-
-# getThatRoom()
-
