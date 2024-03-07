@@ -43,11 +43,14 @@ def evadeCyberPolice():
 # function to pause execution until time has arrived
 def wait_until(target_time):
     target_datetime = datetime.datetime.combine(datetime.datetime.today(), target_time)
+    print (target_datetime)
 
+    print(datetime.datetime.now())
     time_difference = target_datetime - datetime.datetime.now()
     
     # Convert time difference to seconds
     total_seconds = time_difference.total_seconds()
+    print(total_seconds)
 
     # Check if the target time is in the future
     if total_seconds > 0:
@@ -162,7 +165,8 @@ def getThatRoom(sessionTime, studio, bookingType):
     Calculatins for div value : Whatever the booking time is -8
     eg. 9:00 = [1], 21:00 = [13]
     """
-    timeIdentifier = (int(sessionTime)/100)-8
+    timeIdentifier = int((int(sessionTime)/100)-8)
+    print(timeIdentifier)
     time_slot = driver.find_element(by=By.XPATH,\
                                     value=f'//*[@id="day_main"]/tbody/tr[{timeIdentifier}]/td')
     time_slot.click()
@@ -179,7 +183,7 @@ def getThatRoom(sessionTime, studio, bookingType):
         nxt_btn.click()
         evadeCyberPolice()
 
-    target_time = datetime.time(6, 50, 0)
+    target_time = datetime.time(19, 49, 0)
     wait_until(target_time)
     submitBooking()
 
