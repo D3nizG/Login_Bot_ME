@@ -1,62 +1,56 @@
-"""
-Procedure:
-
-0. Load web page
-1. Sign into web page (username and password followed by login button)
-2. Change/select "Custom 75" (studio name) (select from a drop down box)
-3. Select the following day (pressing the right arrow button)
-4. Select prefered time for booking : 9:00pm - 11:00pm (21:00-23:00) (select by clicking on the box)
-5. Update booking type to 24hr
-6. Save
-
-IMPORTANT
-
-Should be able to change the time of booking available-->> asks for input for time
-
-*Books 24 hours in advance to book for 24 hour bookings
-*MUST BE '24 HOUR BOOKING' option ***NOT 'ADVANCE' booking option
-*Will need to change booking option from advance to 24 hour if loaded outside of time
-*If logged in already during the time of 24 hours it will default to only 24 hour setting??
-"""
-
-import secretSquirrelSauce
 import sys
 import datetime
 import time
+import pytz
 import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
 
-"""
-Code starts here
-""" 
 
-"""some functions that help with the functionality of the bot"""
-# Randomly halts code
+# Halts code for random periods of time
 def evadeCyberPolice():
-    int = random.randint(1,4)
+    int = random.randint(1,3)
     time.sleep(int)
 
+# Function to format the time difference into a string to make it human readable
+def format_timedelta(td):
+    # Extract hours, minutes, and seconds from the timedelta object
+    hours, remainder = divmod(td.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
 
-# function to pause execution until time has arrived
+    # Construct the formatted string
+    formatted_time = ""
+    if hours > 0:
+        formatted_time += f"{hours} hours "
+    if minutes > 0:
+        formatted_time += f"{minutes} minutes "
+    if seconds > 0:
+        formatted_time += f"{seconds} seconds"
+
+    return formatted_time.strip()
+
+# Function to pause execution until required time has arrived
 def wait_until(target_time):
-    target_datetime = datetime.datetime.combine(datetime.datetime.today(), target_time)
-    print (target_datetime)
 
-    print(datetime.datetime.now())
-    time_difference = target_datetime - datetime.datetime.now()
-    
+    london_tz = pytz.timezone('Europe/London')
+    london_now = datetime.datetime.now(london_tz)
+    target_datetime = london_tz.localize(datetime.datetime.combine(london_now.date(), target_time))
+
+    if target_datetime < london_now:
+        target_datetime += datetime.timedelta(days=1)
+
+    time_difference = target_datetime - london_now
+    time_left = format_timedelta(time_difference)
+    print ("The time left until submission is " + time_left)
+
     # Convert time difference to seconds
     total_seconds = time_difference.total_seconds()
-    print(total_seconds)
 
     # Check if the target time is in the future
     if total_seconds > 0:
         time.sleep(total_seconds)
-    else:
-        print("Target time is already in the past.")
 
 # menu at the start of application
 def menu():
@@ -80,7 +74,10 @@ def setup(studio = "Custom 75", bookingType = "24hr"):
     print ('Default session length is 2 hours')
     print ('Default booking type is ' + bookingType + '\n\n')
 
-    selection = input("To start proceed with booking enter '1'.\nTo change default studio enter '2'.\
+    username = input("Please enter your username: ")
+    password = input("Please enter your password: ")
+
+    selection = input("\nTo start proceed with booking enter '1'.\nTo change default studio enter '2'.\
                  \nTo change session length enter '3'.(Currently Unavailable)\nTo change booking type enter '4'.\n\n")
     
     # Option 1 proceed with booking process
@@ -90,12 +87,12 @@ def setup(studio = "Custom 75", bookingType = "24hr"):
         
         # collect session times for all bookings
         for i in range(booking_amt):
-            sess_times += [int(input(f"\nPlease enter the session time in the format 'xxxx' for booking #{i+1}.\
-                                     \nFor example 10 pm will be '2200'\n"))]
+            sess_times += [(input(f"\nPlease enter the session time in the format 'xx:xx' for booking #{i+1}.\
+                                     \nFor example 10 pm will be '22:00'\n\n"))]
             
         # run cript for each booking time available
         for i in range(len(sess_times)):
-            getThatRoom(sess_times[i], studio, bookingType)
+            getThatRoom(username, password, sess_times[i], studio, bookingType)
 
     # Option 2 change studio
     elif selection == "2":
@@ -120,24 +117,26 @@ def setup(studio = "Custom 75", bookingType = "24hr"):
 
 
 #Initiate and run the selenium script
-def getThatRoom(sessionTime, studio, bookingType):
-    
+def getThatRoom(username, password, sessionTime, studio, bookingType):
+
+    abbeyRoad = "https://booking.abbeyroadinstitute.co.uk/"
+
     # Start session
     driver = webdriver.Chrome()
     
     # Load webpage
-    driver.get(secretSquirrelSauce.abbeyRoad)
+    driver.get(abbeyRoad)
     driver.implicitly_wait(5)
     evadeCyberPolice()
 
     # Enter username
     ar_user = driver.find_element(by=By.ID, value="username")
-    ar_user.send_keys(secretSquirrelSauce.userPass)
+    ar_user.send_keys(username)
     evadeCyberPolice()
 
     # Enter password
     ar_pass = driver.find_element(by=By.ID, value="password")
-    ar_pass.send_keys(secretSquirrelSauce.userPass)
+    ar_pass.send_keys(password)
     evadeCyberPolice()
 
     # Login to page
@@ -165,8 +164,8 @@ def getThatRoom(sessionTime, studio, bookingType):
     Calculatins for div value : Whatever the booking time is -8
     eg. 9:00 = [1], 21:00 = [13]
     """
-    timeIdentifier = int((int(sessionTime)/100)-8)
-    print(timeIdentifier)
+    sessionTimeHr, *_ = sessionTime.split(":", 1)
+    timeIdentifier = int((int(sessionTimeHr))-8)
     time_slot = driver.find_element(by=By.XPATH,\
                                     value=f'//*[@id="day_main"]/tbody/tr[{timeIdentifier}]/td')
     time_slot.click()
@@ -183,7 +182,8 @@ def getThatRoom(sessionTime, studio, bookingType):
         nxt_btn.click()
         evadeCyberPolice()
 
-    target_time = datetime.time(19, 49, 0)
+
+    target_time = datetime.time(int(sessionTimeHr), 0, 1)
     wait_until(target_time)
     submitBooking()
 
