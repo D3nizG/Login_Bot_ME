@@ -53,7 +53,7 @@ def wait_until(target_time):
         time.sleep(total_seconds)
 
 # menu at the start of application
-def menu():
+def main():
     b = input('\nTo book a session enter 1.\nTo exit application enter 2.\n\n')
 
     if b == "2":
@@ -64,7 +64,7 @@ def menu():
 
     else:
         print("That is not a valid selection. Please try again.\n")
-        menu()
+        main()
 
 
 #  initialize values and accept additional inputs from user 
@@ -190,4 +190,5 @@ def getThatRoom(username, password, sessionTime, studio, bookingType):
     time.sleep(10)
 
 # the function that jumpstarts all the code
-menu()
+if __name__ == "__main__":
+    main()
