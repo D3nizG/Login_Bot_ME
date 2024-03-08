@@ -1,4 +1,4 @@
-# Marik_Web_Bot
+# Login_Bot
 
 To get started download python from https://www.python.org/
 !!!! dont forget to set path when installing!!!!
